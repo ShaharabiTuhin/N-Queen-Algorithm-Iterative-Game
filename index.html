@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Queens Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://media.cnn.com/api/v1/images/stellar/prod/230104173032-02-chess-stock.jpg?c=16x9&q=h_653,w_1160,c_fill/f_webp') no-repeat center center fixed;
+            background-size: cover;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .game-board {
+            display: grid;
+            margin: 20px auto;
+            grid-template-columns: repeat(var(--grid-size), 50px);
+            gap: 5px;
+            width: fit-content;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #f4a460;
+            border: 1px solid #333;
+            position: relative;
+            cursor: pointer;
+        }
+        .cell:nth-child(even) {
+            background-color: #d2b48c;
+        }
+        .queen {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://i.pinimg.com/originals/6a/06/b4/6a06b4c109c6b9e576b76d70fb57679f.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .score-board {
+            margin: 20px;
+            font-size: 20px;
+        }
+        .button-container {
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4caf50;
+            color: white;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>N-Queens Interactive Game</h1>
+    <div class="button-container">
+        <button onclick="startGame(4)">Play 4-Queens</button>
+        <button onclick="startGame(8)">Play 8-Queens</button>
+    </div>
+    <div class="score-board">
+        <p>Score: <span id="score">5</span></p>
+    </div>
+    <div id="gameBoard" class="game-board" style="--grid-size: 4;"></div>
+
+    <script>
+        let score = 5;
+        let queens = [];
+
+        function startGame(size) {
+            const board = document.getElementById('gameBoard');
+            board.style.setProperty('--grid-size', size);
+            board.innerHTML = '';
+            score = 5;
+            queens = [];
+            updateScore();
+
+            for (let row = 0; row < size; row++) {
+                for (let col = 0; col < size; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => placeQueen(row, col, size));
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function placeQueen(row, col, size) {
+            if (!isSafe(row, col)) {
+                alert('Game Over! Incorrect placement.');
+                startGame(size);
+                return;
+            }
+
+            const cell = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+            if (cell.classList.contains('queen')) return;
+
+            cell.classList.add('queen');
+            queens.push([row, col]);
+
+            score += 3;
+            updateScore();
+
+            if (queens.length === size) {
+                alert('Congratulations! You solved the puzzle!');
+                startGame(size);
+            }
+        }
+
+        function isSafe(row, col) {
+            for (const [qRow, qCol] of queens) {
+                if (qRow === row || qCol === col || Math.abs(qRow - row) === Math.abs(qCol - col)) {
+                    score -= 1;
+                    updateScore();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            if (score <= 0) {
+                alert('Game Over! You ran out of points.');
+                startGame(queens.length);
+            }
+        }
+        // Start the game with a 4x4 board by default
+        startGame(4);
+    </script>
+</body>
+</html>
